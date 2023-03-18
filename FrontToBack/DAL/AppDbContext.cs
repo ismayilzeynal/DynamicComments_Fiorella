@@ -31,7 +31,8 @@ namespace FrontToBack.DAL
         public DbSet<Sales> Sales { get; set; }
         public DbSet<SalesProducts> SalesProducts { get; set; }
 
-
+        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
 
 
