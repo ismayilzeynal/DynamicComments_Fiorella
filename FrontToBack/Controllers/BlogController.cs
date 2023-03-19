@@ -82,7 +82,10 @@ namespace FrontToBack.Controllers
         public async Task<IActionResult> DeleteComment(int id)
         {
             var comment = _context.Comments.FirstOrDefault(b=> b.Id == id);
+
+            var result = _context.ChangeTracker.Entries(); // for tracking
             _context.Comments.Remove(comment);
+            result = _context.ChangeTracker.Entries(); // for tracking
             _context.SaveChanges();
             return RedirectToAction("detail", new {id = comment.BlogId });
         }
