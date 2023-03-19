@@ -38,14 +38,14 @@ namespace FrontToBack.Controllers
             ViewBag.UserId = null;
             if (User.Identity.IsAuthenticated)
             {
-                AppUser  user = await _userManager.FindByNameAsync(User.Identity.Name);
+                AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
                 ViewBag.UserId = user.Id;
             }
 
             BlogDetailVM blogDetailVM = new();
             blogDetailVM.Blog = _context.Blogs
                 .Include(bm => bm.Comments)
-                .ThenInclude(c=>c.AppUser)
+                .ThenInclude(c => c.AppUser)
                 .FirstOrDefault(b => b.Id == id);
             blogDetailVM.Blogs = _context.Blogs.OrderByDescending(b => b.Id).Take(3).ToList();
 
@@ -58,11 +58,11 @@ namespace FrontToBack.Controllers
         public async Task<IActionResult> AddComment(string commentMessage, int blogId)
         {
             AppUser user = null;
-            
+
             if (User.Identity.IsAuthenticated)
             {
                 user = await _userManager.FindByNameAsync(User.Identity.Name);
-                ViewBag.UserId=user.Id;
+                ViewBag.UserId = user.Id;
             }
             else
             {
@@ -71,12 +71,20 @@ namespace FrontToBack.Controllers
 
             Comment comment = new();
             comment.Message = commentMessage;
-            comment.CreatedDate= DateTime.Now;
+            comment.CreatedDate = DateTime.Now;
             comment.AppUserId = user.Id;
             comment.BlogId = blogId;
             _context.Comments.Add(comment);
             _context.SaveChanges();
-            return RedirectToAction("Detail", new {id = blogId });
+            return RedirectToAction("Detail", new { id = blogId });
+        }
+
+        public async Task<IActionResult> DeleteComment(int id)
+        {
+            var comment = _context.Comments.FirstOrDefault(b=> b.Id == id);
+            _context.Comments.Remove(comment);
+            _context.SaveChanges();
+            return RedirectToAction("detail", new {id = comment.BlogId });
         }
     }
 }

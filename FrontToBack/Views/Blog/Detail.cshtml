@@ -615,7 +615,7 @@
                                                 <div class="comment-body">
                                                     @if (item.AppUserId == ViewBag.UserId)
                                                     {
-                                                        <span class="reply-btn"><a asp-action="delete" asp-route-id="@item.Id">Delete</a></span>  
+                                                        <span class="reply-btn"><a asp-action="deleteComment" asp-route-id="@item.Id">Delete</a></span>  
                                                     }
                                                     <h5 class="comment-author">@item.AppUser.Fullname</h5>
                                                     <div class="comment-post-date">
