@@ -613,9 +613,10 @@
                                                     <img src="~/juan/assets/img/blog/comment-icon.png" alt="">
                                                 </div>
                                                 <div class="comment-body">
-                                                    @*mentiqin deyismek lazimdi. Yalniz oz kommentin sile bilsin*@
-
-                                                    <span class="reply-btn"><a asp-action="delete" asp-route-id="@item.Id">Delete</a></span> 
+                                                    @if (item.AppUserId == ViewBag.UserId)
+                                                    {
+                                                        <span class="reply-btn"><a asp-action="delete" asp-route-id="@item.Id">Delete</a></span>  
+                                                    }
                                                     <h5 class="comment-author">@item.AppUser.Fullname</h5>
                                                     <div class="comment-post-date">
                                                         @item.CreatedDate.ToString("MM/dd/yyyy")

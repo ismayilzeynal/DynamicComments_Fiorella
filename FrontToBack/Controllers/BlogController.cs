@@ -33,8 +33,15 @@ namespace FrontToBack.Controllers
             return View(blogVM);
         }
 
-        public IActionResult Detail(int id)
+        public async Task<IActionResult> Detail(int id)
         {
+            ViewBag.UserId = null;
+            if (User.Identity.IsAuthenticated)
+            {
+                AppUser  user = await _userManager.FindByNameAsync(User.Identity.Name);
+                ViewBag.UserId = user.Id;
+            }
+
             BlogDetailVM blogDetailVM = new();
             blogDetailVM.Blog = _context.Blogs
                 .Include(bm => bm.Comments)
@@ -42,19 +49,20 @@ namespace FrontToBack.Controllers
                 .FirstOrDefault(b => b.Id == id);
             blogDetailVM.Blogs = _context.Blogs.OrderByDescending(b => b.Id).Take(3).ToList();
 
-
-
-
             return View(blogDetailVM);
         }
+
+
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> AddComment(string commentMessage, int blogId)
         {
             AppUser user = null;
+            
             if (User.Identity.IsAuthenticated)
             {
                 user = await _userManager.FindByNameAsync(User.Identity.Name);
+                ViewBag.UserId=user.Id;
             }
             else
             {
