@@ -56,14 +56,14 @@ namespace FrontToBack.DAL
                         //item.Entity.UpdateDate = DateTime.Now;
                         break;
                     case EntityState.Added:
-                        item.Entity.CreatedAt = DateTime.Now;
+                        item.Entity.CreatedDate = DateTime.Now;
                         break;
                     default:
                         break;
                 }
             }
 
-
+            return base.SaveChanges();
         }
     }
 }
