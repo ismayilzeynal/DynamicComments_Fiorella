@@ -8,7 +8,7 @@ namespace FrontToBack.DAL
 {
     public class AppDbContext : IdentityDbContext<AppUser>
     {
-        public AppDbContext(DbContextOptions options ) : base(options)
+        public AppDbContext(DbContextOptions options) : base(options)
         {
 
         }
@@ -35,8 +35,35 @@ namespace FrontToBack.DAL
         public DbSet<Comment> Comments { get; set; }
 
 
+        public override int SaveChanges()
+        {
+            // generik de istifade etmek olar. BaseEntity ile istifade etmek ustunlukdur, diger entity-ler ondan miras alir. misalcun: isDeleted, isActive, CreatedDate ve s.
 
 
+            var data = ChangeTracker.Entries<Comment>();
+            foreach (var item in data)
+            {
+                switch (item.State)
+                {
+                    case EntityState.Detached:
+                        break;
+                    case EntityState.Unchanged:
+                        break;
+                    case EntityState.Deleted:
+                        //item.Entity.DeletedAt = DateTime.Now;
+                        break;
+                    case EntityState.Modified:
+                        //item.Entity.UpdateDate = DateTime.Now;
+                        break;
+                    case EntityState.Added:
+                        item.Entity.CreatedAt = DateTime.Now;
+                        break;
+                    default:
+                        break;
+                }
+            }
 
+
+        }
     }
 }
