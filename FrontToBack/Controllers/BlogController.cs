@@ -1,6 +1,7 @@
 ﻿using FrontToBack.DAL;
 using FrontToBack.Models;
 using FrontToBack.ViewModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,10 +10,12 @@ namespace FrontToBack.Controllers
     public class BlogController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
 
-        public BlogController(AppDbContext context)
+        public BlogController(AppDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()
@@ -34,14 +37,38 @@ namespace FrontToBack.Controllers
         {
             BlogDetailVM blogDetailVM = new();
             blogDetailVM.Blog = _context.Blogs
-                .Include(bm=>bm.Comments)
-                .FirstOrDefault(b=>b.Id==id);
-            blogDetailVM.Blogs= _context.Blogs.OrderByDescending(b=>b.Id).Take(3).ToList();
+                .Include(bm => bm.Comments)
+                .ThenInclude(c=>c.AppUser)
+                .FirstOrDefault(b => b.Id == id);
+            blogDetailVM.Blogs = _context.Blogs.OrderByDescending(b => b.Id).Take(3).ToList();
 
 
 
 
             return View(blogDetailVM);
+        }
+        [HttpPost]
+        [AutoValidateAntiforgeryToken]
+        public async Task<IActionResult> AddComment(string commentMessage, int blogId)
+        {
+            AppUser user = null;
+            if (User.Identity.IsAuthenticated)
+            {
+                user = await _userManager.FindByNameAsync(User.Identity.Name);
+            }
+            else
+            {
+                return RedirectToAction("login", "account");
+            }
+
+            Comment comment = new();
+            comment.Message = commentMessage;
+            comment.CreatedDate= DateTime.Now;
+            comment.AppUserId = user.Id;
+            comment.BlogId = blogId;
+            _context.Comments.Add(comment);
+            _context.SaveChanges();
+            return RedirectToAction("Detail", new {id = blogId });
         }
     }
 }
